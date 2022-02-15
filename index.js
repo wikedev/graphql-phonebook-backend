@@ -1,5 +1,6 @@
 const { ApolloServer } = require('apollo-server-express')
 const { ApolloServerPluginDrainHttpServer } = require('apollo-server-core')
+const { makeExecutableSchema } = require('@graphql-tools/schema')
 const express = require('express')
 const http = require('http')
 
@@ -32,9 +33,10 @@ const start = async () => {
   const app = express()
   const httpServer = http.createServer(app)
 
+  const schema = makeExecutableSchema({ typeDefs, resolvers })
+
   const server = new ApolloServer({
-    typeDefs,
-    resolvers,
+    schema,
     context: async ({ req }) => {
       const auth = req ? req.headers.authorization : null
       if (auth && auth.toLowerCase().startsWith('bearer ')) {
