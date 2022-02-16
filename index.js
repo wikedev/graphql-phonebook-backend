@@ -13,7 +13,7 @@ const Person = require('./models/person')
 const User = require('./models/user')
 
 const MONGODB_URI =
-  'mongodb+srv://fullstack:fullstack@cluster0.o1opl.mongodb.net/graphqlPhoneApp?retryWrites=true&w=majority'
+  'mongodb+srv://urlhere'
 
 console.log('connecting to', MONGODB_URI)
 
@@ -157,7 +157,7 @@ const resolvers = {
     },
     addAsFriend: async (root, args, { currentUser }) => {
       const nonFriendAlready = (person) =>
-        !currentUser.friends.map((f) => f._id).includes(person._id)
+        !currentUser.friends.map((f) => f._id.toString()).includes(person._id.toString())
 
       if (!currentUser) {
         throw new AuthenticationError('not authenticated')
