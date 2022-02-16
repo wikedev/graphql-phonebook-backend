@@ -1,5 +1,7 @@
 const { UserInputError, AuthenticationError } = require('apollo-server')
 const jwt = require('jsonwebtoken')
+const { PubSub } = require('graphql-subscriptions')
+const pubsub = new PubSub()
 const Person = require('./models/person')
 const User = require('./models/user')
 
@@ -47,6 +49,8 @@ const resolvers = {
         })
       }
 
+      pubsub.publish('PERSON_ADDED', { personAdded: person })
+
       return person
     },
     editNumber: async (root, args) => {
@@ -87,7 +91,9 @@ const resolvers = {
     },
     addAsFriend: async (root, args, { currentUser }) => {
       const nonFriendAlready = (person) =>
-        !currentUser.friends.map((f) => f._id).includes(person._id)
+        !currentUser.friends
+          .map((f) => f._id.toString())
+          .includes(person._id.toString())
 
       if (!currentUser) {
         throw new AuthenticationError('not authenticated')
@@ -101,6 +107,11 @@ const resolvers = {
       await currentUser.save()
 
       return currentUser
+    },
+  },
+  Subscription: {
+    personAdded: {
+      subscribe: () => pubsub.asyncIterator(['PERSON_ADDED']),
     },
   },
 }
